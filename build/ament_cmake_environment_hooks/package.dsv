@@ -1,0 +1,4 @@
+source;share/icra_perception/local_setup.bash
+source;share/icra_perception/local_setup.dsv
+source;share/icra_perception/local_setup.sh
+source;share/icra_perception/local_setup.zsh

@@ -1,0 +1,2 @@
+source;share/icra_perception/environment/ament_prefix_path.sh
+source;share/icra_perception/environment/path.sh
