@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys
+import time
 
 ################################ DATASET PARAMETERS AND CONSTANTS ################################
 CHEST_CAM_OFFSET = 0.8 # meters, distance from the chest camera to the table
@@ -36,7 +37,7 @@ image2 = np.zeros((480,640))
 # generate the depth image
 for x in range(0, 640):
     for y in range(0, 480):
-        image2[y][x] = value(x,y,CENTER_X,320)
+        image2[y][x] = value(x,y,CENTER_X+100,320)
 
 image = image + image2
 image -= CHEST_CAM_OFFSET
@@ -53,7 +54,12 @@ cv2.imshow('image', image_prime)
 # save the image
 cv2.imwrite('don.png', image_prime)
 
+#####################################perception starts here#####################################
+duration = time.time()
+
 # generate mask for the boundary of the DON
+centers = {}
+
 min_depth = np.min(image)
 max_depth = np.max(image)
 threshold = 0.0001
@@ -69,37 +75,25 @@ for x in range(0, 640):
             else:
                 mask2[y][x] = 1
 
-# convert the mask matrix to a 8-bit image
 mask1 = mask1*255
 mask1 = mask1.astype(np.uint8)
 mask2 = mask2*255
 mask2 = mask2.astype(np.uint8)
 
-# show the mask
-cv2.imshow('mask', mask1)
-# cv2.waitKey(0)
-cv2.imwrite('don1_mask.png', mask1)
-cv2.imshow('mask', mask2)
-# cv2.waitKey(0)
-cv2.imwrite('don2_mask.png', mask2)
-
-# In the image, there are two DONS, find the centroid of both the dons
-# convert image_prime to color image
-image_prime = cv2.cvtColor(image_prime, cv2.COLOR_GRAY2BGR)
-
 M = cv2.moments(mask1)
 cX = int(M["m10"] / M["m00"])
 cY = int(M["m01"] / M["m00"])
-cv2.circle(image_prime, (cX, cY), 5, (0, 0, 255), -1)
+centers['mask1'] = (cX, cY)
 
 M = cv2.moments(mask2)
 cX = int(M["m10"] / M["m00"])
 cY = int(M["m01"] / M["m00"])
 cv2.circle(image_prime, (cX, cY), 5, (255, 0, 0), -1)
+centers['mask2'] = (cX, cY)
 
+print(centers)
 
-# show the image
-cv2.imshow('image', image_prime)
-# save the image
-cv2.imwrite('don_centroid.png', image_prime)
-# cv2.waitKey(0)
+duration = time.time() - duration
+print("One Iteration of perception in secods : ",duration)
+print("X error : ", (((centers['mask1'][0] - CENTER_X)/CENTER_X + (centers['mask2'][0] - (CENTER_X+100))/(CENTER_X+100) ) *100)/ 2)
+print("Y error : ", (((centers['mask1'][1] - 120)/120 + (centers['mask2'][1] - 320)/320 )*100)/ 2)

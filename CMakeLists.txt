@@ -7,9 +7,51 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+include_directories(include)
+
+## To include cpp executables : 
+# add_executable(cpp_executable  src/cpp_node.cpp)
+# ament_target_dependencies(cpp_executable rclcpp)
+
+# install(TARGETS
+#   cpp_executable
+#   DESTINATION lib/${PROJECT_NAME}
+# )
+
+# # Install python modules
+# ament_python_install_package(${PROJECT_NAME})
+
+# # Install Python executables
+# install(PROGRAMS
+#     scripts/py_node.py
+#     DESTINATION lib/${PROJECT_NAME}
+# )
+
+install(PROGRAMS
+    scripts/publisher1.py
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+    scripts/subscriber1.py
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+    scripts/pipeline_test.py
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+    scripts/cv_bridge_test.py
+    DESTINATION lib/${PROJECT_NAME}
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
