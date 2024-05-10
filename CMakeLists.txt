@@ -34,22 +34,12 @@ include_directories(include)
 # )
 
 install(PROGRAMS
-    scripts/publisher1.py
+    scripts/vision_test.py
     DESTINATION lib/${PROJECT_NAME}
 )
 
 install(PROGRAMS
-    scripts/subscriber1.py
-    DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-    scripts/pipeline_test.py
-    DESTINATION lib/${PROJECT_NAME}
-)
-
-install(PROGRAMS
-    scripts/cv_bridge_test.py
+    scripts/vision.py
     DESTINATION lib/${PROJECT_NAME}
 )
 
