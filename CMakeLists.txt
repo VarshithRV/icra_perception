@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -34,7 +35,7 @@ include_directories(include)
 # )
 
 install(PROGRAMS
-    scripts/vision_test.py
+    scripts/vision_calibration.py
     DESTINATION lib/${PROJECT_NAME}
 )
 
