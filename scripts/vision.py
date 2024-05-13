@@ -21,6 +21,7 @@ Y2 = 200 # bottom
 ############################################
 MASK_THRESHOLD = 2 # mask will become slimmer if the value is decreased, smaller => more precise range(0, 255)
 ############################################
+FEEDBACK_THRESHOLD = 10 # threshold for the image change detection
 
 class ImageProcessorNode(Node):
     def __init__(self):
@@ -68,7 +69,7 @@ class ImageProcessorNode(Node):
             return False
         # Calculate the difference between the average RGB values
         diff = np.linalg.norm(avg_rgb1 - avg_rgb2)
-        return diff > 10
+        return diff > FEEDBACK_THRESHOLD
 
     # function to get the average RGB values of the full image
     def get_avg_rgb(self):
