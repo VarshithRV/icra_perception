@@ -6,7 +6,7 @@ from geometry_msgs.msg import PointStamped
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
-
+import threading as td
 import pyrealsense2 as rs
 import image_geometry
 import tf2_geometry_msgs
@@ -43,6 +43,11 @@ class ImageProcessorNode(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         # Create a subscriber to receive Image messages
+        self.color_subscriber = self.create_subscription(
+            Image, '/chest_camera/color/image_raw', self.color_callback, 10
+        )
+
+        # Create a subscriber to receive Image messages
         self.depth_to_color_subscriber = self.create_subscription(
             Image, '/chest_camera/aligned_depth_to_color/image_raw', self.image_callback, 10
         )
@@ -56,7 +61,35 @@ class ImageProcessorNode(Node):
         self.point_publisher0 = self.create_publisher(PointStamped, '/don0_centroid_3d', 10)
         self.point_publisher1 = self.create_publisher(PointStamped, '/don1_centroid_3d', 10)
 
+
+    # function that checks if the image has changed given two sets of average rgb values
+    def has_image_changed(self, avg_rgb1, avg_rgb2):
+        if avg_rgb1 is None or avg_rgb2 is None:
+            return False
+        # Calculate the difference between the average RGB values
+        diff = np.linalg.norm(avg_rgb1 - avg_rgb2)
+        return diff > 10
+
+    # function to get the average RGB values of the full image
+    def get_avg_rgb(self):
+        if self.color_image is None:
+            return
+        # get the average RGB values of the full image
+        avg_rgb = np.mean(self.color_image, axis=(0, 1))
+        return avg_rgb
+        
     
+    # Callback function for the Image message
+    def color_callback(self, msg):
+        if self.counter0 == 0:
+            self.get_logger().info("Color Image Received")
+        self.counter0 += 1
+        self.color_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding="passthrough")
+        self.color_image = self.color_image[Y1:-Y2,X1:-X2]
+        # write the image to check the cropping
+        cv2.imwrite('color_image.png', self.color_image)
+
+
     # Callback function for the CameraInfo message
     def camera_info_callback(self, msg):
         self.camera_model.fromCameraInfo(msg)
@@ -188,11 +221,7 @@ class ImageProcessorNode(Node):
             self.get_logger().error(f"Error processing image: {e}")
 
 
-def main(args=None):
-    rclpy.init(args=args)
-
-    node = ImageProcessorNode()
-
+def spin_node(node):
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
@@ -200,6 +229,30 @@ def main(args=None):
     finally:
         node.destroy_node()
         rclpy.shutdown()
+
+def main(args=None):
+    rclpy.init(args=args)
+
+    node = ImageProcessorNode()
+    # Create a thread to spin the node
+    thread = td.Thread(target=spin_node, args=(node,), daemon=True)
+    thread.start()
+    
+    # get the average RGB values
+    avg_rgb1 = node.get_avg_rgb()
+
+    time.sleep(2)
+
+    avg_rgb2 = node.get_avg_rgb()
+
+    # Check if the image has changed
+    if node.has_image_changed(avg_rgb1, avg_rgb2):
+        print("The image has changed")
+    else:
+        print("The image has not changed")
+
+
+    thread.join()
 
 
 if __name__ == '__main__':
