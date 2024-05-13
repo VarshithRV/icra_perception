@@ -6,11 +6,12 @@ from geometry_msgs.msg import PointStamped
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 import numpy as np
-import struct
+
 import pyrealsense2 as rs
 import image_geometry
 import tf2_geometry_msgs
 from tf2_ros import Buffer, TransformListener, TransformException
+import time
 
 ######### Crop values of the image #########
 X1 = 125 # left
@@ -32,6 +33,7 @@ class ImageProcessorNode(Node):
         self.camera_model = image_geometry.PinholeCameraModel()
         self.camera_info = None
         self.depth_image = None
+        self.color_image = None
         self.counter0 = 0
         self.counter1 = 0
         self.counter2 = 0
@@ -100,6 +102,7 @@ class ImageProcessorNode(Node):
 
     # Callback function for the Image message, finding the centroid of the DONs and the 3d point
     def image_callback(self, msg):
+        timer_now = time.time()
         try:
             if self.counter1==0:
                 self.get_logger().info("Depth Image Received")
@@ -169,6 +172,9 @@ class ImageProcessorNode(Node):
             self.counter2 += 1
             self.point_publisher0.publish(point0)
             self.point_publisher1.publish(point1)
+
+
+            # self.get_logger().info(f"Time taken for this detection : {time.time()-timer_now}")
             # print(f"3D point at pixel ({cx1}, {cy1}): {point_3d1}")
             # print(f"3D point at pixel ({cx2}, {cy2}): {point_3d2}")
             

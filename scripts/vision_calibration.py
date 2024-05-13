@@ -13,12 +13,12 @@ import tf2_geometry_msgs
 from tf2_ros import Buffer, TransformListener, TransformException
 
 ######### Crop values of the image #########
-X1 = 125 # left
+X1 = 120 # left
 Y1 = 50  # top 
 X2 = 60  # right
 Y2 = 200 # bottom
 ############################################
-MASK_THRESHOLD = 2 # mask will become slimmer if the value is decreased, smaller => more precise range(0, 255)
+MASK_THRESHOLD = 1 # mask will become slimmer if the value is decreased, smaller => more precise range(0, 255)
 ############################################
 
 class ImageProcessorNode(Node):
