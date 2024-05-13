@@ -206,15 +206,6 @@ class ImageProcessorNode(Node):
             self.point_publisher0.publish(point0)
             self.point_publisher1.publish(point1)
 
-
-            # self.get_logger().info(f"Time taken for this detection : {time.time()-timer_now}")
-            # print(f"3D point at pixel ({cx1}, {cy1}): {point_3d1}")
-            # print(f"3D point at pixel ({cx2}, {cy2}): {point_3d2}")
-            
-            # cv2.circle(normalized_img_parent, (cx1, cy1), 5, (255, 0, 0), -1)
-            # cv2.circle(normalized_img_parent, (cx2, cy2), 5, (255, 0, 0), -1)
-            # cv2.imwrite('estimation.png', normalized_img_parent) # use this to validate the centroid estimation
-
         except CvBridgeError as e:
             self.get_logger().error(f"Failed to convert image: {e}")
         except Exception as e:
